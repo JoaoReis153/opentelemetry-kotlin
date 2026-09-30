@@ -217,6 +217,36 @@ internal class OtlpClientTest {
     }
 
     @Test
+    fun testHeadersAreProvidedForEachSignalRequest() = runTest {
+        mockResponseStatus = HttpStatusCode.OK
+        var token = "first"
+        client = createOtlpHttpClient(errorHandler) {
+            httpClient = createDefaultHttpClient(INFINITE_TIMEOUT_MS, server)
+            headers = { mapOf(HttpHeaders.Authorization to "Bearer $token") }
+        }
+
+        assertEquals(OtlpResponse.Success, client.exportTraces(spans))
+        token = "second"
+        assertEquals(OtlpResponse.Success, client.exportLogs(logRecords))
+
+        assertEquals("Bearer first", server.requestHistory[0].headers[HttpHeaders.Authorization])
+        assertEquals("Bearer second", server.requestHistory[1].headers[HttpHeaders.Authorization])
+        assertEquals(expectedUserAgent, server.requestHistory[0].headers[HttpHeaders.UserAgent])
+    }
+
+    @Test
+    fun testHeaderProviderFailureIsReportedWithoutSending() = runTest {
+        client = createOtlpHttpClient(errorHandler) {
+            httpClient = createDefaultHttpClient(INFINITE_TIMEOUT_MS, server)
+            headers = { error("token refresh failed") }
+        }
+
+        assertEquals(OtlpResponse.Unknown, client.exportTraces(spans))
+        assertEquals(1, errorHandler.userCodeErrors.size)
+        assertEquals(0, server.requestHistory.size)
+    }
+
+    @Test
     fun testCreateOtlpHttpClientInvalidValuesFallBackToDefault() {
         val fakeHandler = FakeSdkErrorHandler()
         val createdClient = createOtlpHttpClient(fakeHandler) {

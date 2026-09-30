@@ -21,9 +21,19 @@ fun List<LogRecordProcessor>.toBehavior(): LogRecordProcessorBehavior? {
 
         val httpExporter = processor.simple?.exporter?.otlpHttp ?: processor.batch?.exporter?.otlpHttp
         if (httpExporter != null) {
+            // if there are duplicate keys, the last one wins.
+            // The spec says that in the case of duplicate keys, [headers] have a higher precedence.
+            val headers =
+                OtlpHttpExporterBehavior.buildHeaderMap(httpExporter.headersList).orEmpty() +
+                    OtlpHttpExporterBehavior.buildHeaderMap(
+                        httpExporter.headers?.joinToString(separator = ",") { pair ->
+                            "${pair.name}=${pair.value}"
+                        }
+                    ).orEmpty()
             val httpExporterBehavior = OtlpHttpExporterBehavior(
                 endpoint = httpExporter.endpoint,
-                timeout = httpExporter.timeout
+                timeout = httpExporter.timeout,
+                headers = headers.ifEmpty { null }
             )
             return LogRecordProcessorBehavior(http = httpExporterBehavior)
         }

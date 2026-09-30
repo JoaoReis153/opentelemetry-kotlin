@@ -61,6 +61,8 @@ internal class OpenTelemetryEnvVarsTest {
             "OTEL_LINK_ATTRIBUTE_COUNT_LIMIT" to "8",
             "OTEL_LOGRECORD_ATTRIBUTE_COUNT_LIMIT" to "9",
             "OTEL_LOGRECORD_ATTRIBUTE_VALUE_LENGTH_LIMIT" to "10",
+            "OTEL_TRACES_EXPORTER" to "console",
+            "OTEL_LOGS_EXPORTER" to "console",
         )
 
         val expected = OpenTelemetryBehavior(
@@ -77,11 +79,17 @@ internal class OpenTelemetryEnvVarsTest {
                     attributeCountPerEventLimit = 7,
                     attributeCountPerLinkLimit = 8,
                 ),
+                processor = SpanProcessorBehavior(
+                    console = ConsoleExporterBehavior(),
+                )
             ),
             loggerProvider = LoggerProviderBehavior(
                 logLimits = LogLimitsBehavior(
                     attributeCountLimit = 9,
                     attributeValueLengthLimit = 10,
+                ),
+                processor = LogRecordProcessorBehavior(
+                    console = ConsoleExporterBehavior(),
                 ),
             ),
         )
@@ -129,9 +137,16 @@ internal class OpenTelemetryEnvVarsTest {
         val env = mapOf(
             "OTEL_TRACES_EXPORTER" to "otlp",
             "OTEL_LOGS_EXPORTER" to "otlp",
+            "OTEL_EXPORTER_OTLP_ENDPOINT" to "http://localhost:4317",
+            "OTEL_EXPORTER_OTLP_TIMEOUT" to "1",
+            "OTEL_EXPORTER_OTLP_HEADERS" to "key1=value1,key2=value2",
         )
         val behavior = toBehavior(env::get)
-        val http = OtlpHttpExporterBehavior()
+        val http = OtlpHttpExporterBehavior(
+            endpoint = "http://localhost:4317",
+            timeout = 1,
+            headers = mapOf("key1" to "value1", "key2" to "value2")
+        )
         assertEquals(SpanProcessorBehavior(http = http), behavior.tracerProvider?.processor)
         assertEquals(LogRecordProcessorBehavior(http = http), behavior.loggerProvider?.processor)
     }

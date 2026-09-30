@@ -37,5 +37,6 @@ class OpenTelemetryEnvVars(
     internal companion object {
         const val OTLP_ENDPOINT = "OTEL_EXPORTER_OTLP_ENDPOINT"
         const val OTLP_TIMEOUT = "OTEL_EXPORTER_OTLP_TIMEOUT"
+        const val OTLP_HEADERS = "OTEL_EXPORTER_OTLP_HEADERS"
     }
 }

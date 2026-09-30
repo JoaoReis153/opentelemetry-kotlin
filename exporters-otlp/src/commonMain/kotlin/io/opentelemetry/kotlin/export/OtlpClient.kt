@@ -32,6 +32,7 @@ internal class OtlpClient(
     val baseUrl: String,
     private val httpClient: HttpClient,
     private val sdkErrorHandler: SdkErrorHandler,
+    private val headers: suspend () -> Map<String, String> = { emptyMap() },
 ) {
 
     private val contentType = ContentType.parse("application/x-protobuf")
@@ -55,10 +56,12 @@ internal class OtlpClient(
         parsePartialSuccess: (body: ByteArray) -> OtlpPartialSuccess?,
     ): OtlpResponse = sdkErrorHandler.guardOrDefaultSuspend(Unknown, "OTLP export failed") {
         val url = "$baseUrl/${endpoint.path}"
+        val requestHeaders = headers()
         val response = httpClient.post(url) {
             compress("gzip")
             contentType(contentType)
             header(HttpHeaders.UserAgent, userAgent)
+            requestHeaders.forEach { (name, value) -> header(name, value) }
             setBody(requestSerializer())
         }
         // A 200 can still be a partial success and error responses can carry an error message,
