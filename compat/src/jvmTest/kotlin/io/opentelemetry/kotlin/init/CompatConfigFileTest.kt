@@ -1,11 +1,13 @@
 package io.opentelemetry.kotlin.init
 
 import io.opentelemetry.exporter.logging.LoggingSpanExporter
+import io.opentelemetry.kotlin.OpenTelemetrySdk
 import io.opentelemetry.kotlin.clock.FakeClock
 import io.opentelemetry.kotlin.createCompatOpenTelemetry
 import io.opentelemetry.kotlin.factory.CompatContextFactory
 import io.opentelemetry.kotlin.logging.export.FakeLogRecordProcessor
 import io.opentelemetry.kotlin.tracing.export.FakeSpanProcessor
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -82,6 +84,20 @@ internal class CompatConfigFileTest {
     }
 
     @Test
+    fun `a batch config file buffers spans until flush`() {
+        captureJul(LoggingSpanExporter::class.java.name) { messages ->
+            val sdk = createCompatOpenTelemetry {
+                configFile(writeConfigFile(BATCH_CONSOLE_CONFIG_FILE))
+            } as OpenTelemetrySdk
+            sdk.tracerProvider.getTracer("test").startSpan("batch-console-span").end()
+            assertTrue(messages.isEmpty())
+            runBlocking { sdk.forceFlush() }
+            assertTrue(messages.any { it.contains("batch-console-span") })
+            runBlocking { sdk.shutdown() }
+        }
+    }
+
+    @Test
     fun `the dsl export takes precedence over console in the config file`() {
         val spanProcessor = FakeSpanProcessor()
         val logProcessor = FakeLogRecordProcessor()
@@ -103,7 +119,7 @@ internal class CompatConfigFileTest {
         return file.absolutePath
     }
 
-    private fun captureJul(loggerName: String, block: () -> Unit): List<String> {
+    private fun captureJul(loggerName: String, block: (List<String>) -> Unit): List<String> {
         val logger = Logger.getLogger(loggerName)
         val messages = mutableListOf<String>()
         val handler = object : Handler() {
@@ -121,7 +137,7 @@ internal class CompatConfigFileTest {
         logger.level = Level.ALL
         logger.useParentHandlers = false
         try {
-            block()
+            block(messages)
         } finally {
             logger.removeHandler(handler)
             logger.level = previousLevel
@@ -159,6 +175,16 @@ internal class CompatConfigFileTest {
             logger_provider:
               processors:
                 - simple:
+                    exporter:
+                      console: {}
+        """.trimIndent()
+
+        val BATCH_CONSOLE_CONFIG_FILE = """
+            file_format: "1.0"
+            tracer_provider:
+              processors:
+                - batch:
+                    schedule_delay: 60000
                     exporter:
                       console: {}
         """.trimIndent()

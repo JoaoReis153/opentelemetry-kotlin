@@ -39,6 +39,8 @@ import io.opentelemetry.kotlin.tracing.sampling.OtelJavaSamplerAdapter
 import io.opentelemetry.kotlin.tracing.sampling.Sampler
 import io.opentelemetry.kotlin.tracing.sampling.SamplerAdapter
 import io.opentelemetry.kotlin.tracing.sampling.toSampler
+import java.util.concurrent.TimeUnit
+import io.opentelemetry.sdk.trace.export.BatchSpanProcessor as OtelJavaBatchSpanProcessor
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor as OtelJavaSimpleSpanProcessor
 
 @ExperimentalApi
@@ -97,7 +99,18 @@ internal class CompatTracerProviderConfig(
             return
         }
         exportConfigured = true
-        builder.addSpanProcessor(OtelJavaSimpleSpanProcessor.create(LoggingSpanExporter.create()))
+        val exporter = LoggingSpanExporter.create()
+        val batch = behavior.batch
+        if (batch == null) {
+            builder.addSpanProcessor(OtelJavaSimpleSpanProcessor.create(exporter))
+        } else {
+            val batchBuilder = OtelJavaBatchSpanProcessor.builder(exporter)
+            batch.scheduleDelay?.let { batchBuilder.setScheduleDelay(it, TimeUnit.MILLISECONDS) }
+            batch.exportTimeout?.let { batchBuilder.setExporterTimeout(it, TimeUnit.MILLISECONDS) }
+            batch.maxQueueSize?.let { batchBuilder.setMaxQueueSize(it) }
+            batch.maxExportBatchSize?.let { batchBuilder.setMaxExportBatchSize(it) }
+            builder.addSpanProcessor(batchBuilder.build())
+        }
     }
 
     private val newSamplerDsl: SamplerConfigDsl = object : SamplerConfigDsl {

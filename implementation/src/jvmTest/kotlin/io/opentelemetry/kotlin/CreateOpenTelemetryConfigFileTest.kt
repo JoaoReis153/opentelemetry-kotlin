@@ -6,12 +6,16 @@ import io.opentelemetry.kotlin.init.SdkConfigFactory
 import io.opentelemetry.kotlin.init.defaultBehaviorReader
 import io.opentelemetry.kotlin.logging.export.FakeLogRecordProcessor
 import io.opentelemetry.kotlin.tracing.export.FakeSpanProcessor
+import kotlinx.coroutines.runBlocking
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.PrintStream
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertSame
+import kotlin.test.assertTrue
 
 internal class CreateOpenTelemetryConfigFileTest {
 
@@ -71,6 +75,27 @@ internal class CreateOpenTelemetryConfigFileTest {
     }
 
     @Test
+    fun `a batch config file buffers spans until flush`() {
+        runBlocking {
+            val output = ByteArrayOutputStream()
+            val previous = System.out
+            System.setOut(PrintStream(output, true))
+            try {
+                val sdk = createOpenTelemetry {
+                    configFile(writeConfigFile(BATCH_CONSOLE_CONFIG_FILE))
+                } as OpenTelemetrySdk
+                sdk.tracerProvider.getTracer("test").startSpan("batch-console-span").end()
+                assertTrue(output.toString().isEmpty())
+                sdk.forceFlush()
+                assertTrue(output.toString().contains("batch-console-span"))
+                sdk.shutdown()
+            } finally {
+                System.setOut(previous)
+            }
+        }
+    }
+
+    @Test
     fun `the dsl export takes precedence over console in the config file`() {
         val spanProcessor = FakeSpanProcessor()
         val logProcessor = FakeLogRecordProcessor()
@@ -109,6 +134,16 @@ internal class CreateOpenTelemetryConfigFileTest {
             logger_provider:
               processors:
                 - simple:
+                    exporter:
+                      console: {}
+        """.trimIndent()
+
+        val BATCH_CONSOLE_CONFIG_FILE = """
+            file_format: "1.0"
+            tracer_provider:
+              processors:
+                - batch:
+                    schedule_delay: 60000
                     exporter:
                       console: {}
         """.trimIndent()
