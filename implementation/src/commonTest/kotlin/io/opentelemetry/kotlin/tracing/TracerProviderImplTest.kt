@@ -13,7 +13,7 @@ import io.opentelemetry.kotlin.factory.FakeIdGenerator
 import io.opentelemetry.kotlin.factory.FakeSpanContextFactory
 import io.opentelemetry.kotlin.factory.FakeSpanFactory
 import io.opentelemetry.kotlin.factory.SpanFactory
-import io.opentelemetry.kotlin.init.SamplerConfigDsl
+import io.opentelemetry.kotlin.init.SamplerConfigImpl
 import io.opentelemetry.kotlin.init.config.DefaultSampler
 import io.opentelemetry.kotlin.init.config.TracingConfig
 import io.opentelemetry.kotlin.resource.FakeResource
@@ -21,8 +21,6 @@ import io.opentelemetry.kotlin.resource.ResourceImpl
 import io.opentelemetry.kotlin.tracing.export.FakeSpanProcessor
 import io.opentelemetry.kotlin.tracing.export.SpanProcessor
 import io.opentelemetry.kotlin.tracing.sampling.Sampler
-import io.opentelemetry.kotlin.tracing.sampling.composableProbability
-import io.opentelemetry.kotlin.tracing.sampling.composite
 import kotlinx.coroutines.test.runTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -259,9 +257,7 @@ internal class TracerProviderImplTest {
     fun testInvalidComposableProbabilityFallsBackToDefaultSampler() {
         val errorHandler = FakeSdkErrorHandler()
         val provider = createProvider(errorHandler = errorHandler, samplerFactory = { factory ->
-            object : SamplerConfigDsl {
-                override val spanFactory = factory
-            }.composite { composableProbability(1.5) }
+            SamplerConfigImpl(factory).composite { composableProbability(1.5) }
         })
 
         assertTrue(provider.getTracer(name = "test").startSpan("test-span").isRecording())
