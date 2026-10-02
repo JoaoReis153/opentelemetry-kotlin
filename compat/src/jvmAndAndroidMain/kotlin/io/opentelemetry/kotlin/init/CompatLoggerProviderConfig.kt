@@ -116,7 +116,7 @@ internal class CompatLoggerProviderConfig(
             builder.setResource(OtelJavaResource.create(attrs, merged.schemaUrl))
         }
         builder.setClock(clock.toOtelJavaClock())
-        return LoggerProviderAdapter(builder.build())
+        return LoggerProviderAdapter(builder.build(), sdkErrorHandler)
     }
 
     fun toBehavior(): LoggerProviderBehavior =

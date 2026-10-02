@@ -6,6 +6,7 @@ import io.opentelemetry.kotlin.aliases.OtelJavaLogRecordProcessor
 import io.opentelemetry.kotlin.aliases.OtelJavaReadWriteLogRecord
 import io.opentelemetry.kotlin.context.toOtelKotlinContext
 import io.opentelemetry.kotlin.error.SdkErrorHandler
+import io.opentelemetry.kotlin.error.guard
 import io.opentelemetry.kotlin.export.telemetryExceptionHandler
 import io.opentelemetry.kotlin.launchAsCompletableResultCode
 import kotlinx.coroutines.CoroutineScope
@@ -26,7 +27,9 @@ internal class OtelJavaLogRecordProcessorAdapter(
         context: OtelJavaContext,
         logRecord: OtelJavaReadWriteLogRecord
     ) {
-        impl.onEmit(ReadWriteLogRecordAdapter(logRecord), context.toOtelKotlinContext())
+        sdkErrorHandler.guard("LogRecordProcessor.onEmit failed") {
+            impl.onEmit(ReadWriteLogRecordAdapter(logRecord), context.toOtelKotlinContext())
+        }
     }
 
     override fun forceFlush(): OtelJavaCompletableResultCode =
