@@ -1,9 +1,8 @@
 package io.opentelemetry.kotlin.tracing
 
 import io.opentelemetry.kotlin.factory.toHexString
-
-private const val TRACE_ID_BYTES = 16
-private const val SPAN_ID_BYTES = 8
+import io.opentelemetry.kotlin.propagation.utils.isValidSpanIdBytes
+import io.opentelemetry.kotlin.propagation.utils.isValidTraceIdBytes
 
 public class SpanContextImpl(
     traceIdBytes: ByteArray,
@@ -23,7 +22,7 @@ public class SpanContextImpl(
         get() = spanIdData.copyOf()
 
     override val isValid: Boolean =
-        isValidId(traceIdData, TRACE_ID_BYTES) && isValidId(spanIdData, SPAN_ID_BYTES)
+        traceIdData.isValidTraceIdBytes() && spanIdData.isValidSpanIdBytes()
 
     override val traceId: String by lazy {
         traceIdData.toHexString()
@@ -59,6 +58,3 @@ public class SpanContextImpl(
         "SpanContextImpl(traceId=$traceId, spanId=$spanId, traceFlags=$traceFlags, " +
             "isRemote=$isRemote, traceState=$traceState)"
 }
-
-private fun isValidId(id: ByteArray, expectedSize: Int): Boolean =
-    id.size == expectedSize && id.any { it != 0.toByte() }
