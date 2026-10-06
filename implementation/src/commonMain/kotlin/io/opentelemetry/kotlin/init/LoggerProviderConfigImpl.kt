@@ -70,7 +70,7 @@ internal class LoggerProviderConfigImpl(
         )
 
     private fun processorFromBehavior(processorBehavior: LogRecordProcessorBehavior?): LogRecordProcessor? {
-        if (processorBehavior?.console == null) {
+        if (processorBehavior?.console == null && processorBehavior?.simple?.console == null) {
             return null
         }
         return LogExportConfigImpl(clock, sdkErrorHandler).run {
