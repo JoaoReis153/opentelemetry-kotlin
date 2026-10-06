@@ -10,11 +10,15 @@ import io.opentelemetry.kotlin.ExperimentalApi
  * https://opentelemetry.io/docs/specs/otel/logs/sdk/#simple-processor
  */
 @ExperimentalApi
-class SimpleLogRecordProcessorBehavior : Behavior<SimpleLogRecordProcessorBehavior> {
+data class SimpleLogRecordProcessorBehavior(
+    /** Console log exporter. */
+    val console: ConsoleExporterBehavior? = null,
+    /** HTTP log exporter. */
+    val http: OtlpHttpExporterBehavior? = null,
+) : Behavior<SimpleLogRecordProcessorBehavior> {
 
-    override fun mergeWith(higher: SimpleLogRecordProcessorBehavior): SimpleLogRecordProcessorBehavior = higher
-
-    override fun equals(other: Any?): Boolean = other is SimpleLogRecordProcessorBehavior
-
-    override fun hashCode(): Int = 0
+    override fun mergeWith(higher: SimpleLogRecordProcessorBehavior): SimpleLogRecordProcessorBehavior = copy(
+        console = mergeNode(console, higher.console),
+        http = mergeNode(http, higher.http),
+    )
 }

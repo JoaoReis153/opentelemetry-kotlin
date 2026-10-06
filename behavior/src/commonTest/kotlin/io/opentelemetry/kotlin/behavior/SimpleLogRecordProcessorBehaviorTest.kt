@@ -27,4 +27,15 @@ internal class SimpleLogRecordProcessorBehaviorTest {
 
         assertEquals(behavior, behavior.mergeWith(SimpleLogRecordProcessorBehavior()))
     }
+
+    @Test
+    fun mergesExportersFieldByFieldAcrossLayers() {
+        val console = ConsoleExporterBehavior()
+        val http = OtlpHttpExporterBehavior(endpoint = "https://example.com")
+
+        val merged = SimpleLogRecordProcessorBehavior(console = console)
+            .mergeWith(SimpleLogRecordProcessorBehavior(http = http))
+
+        assertEquals(SimpleLogRecordProcessorBehavior(console = console, http = http), merged)
+    }
 }
