@@ -106,7 +106,7 @@ internal class OpenTelemetryConfigurationMapperTest {
                     processor = SpanProcessorBehavior(console = console),
                 ),
                 loggerProvider = LoggerProviderBehavior(
-                    processor = LogRecordProcessorBehavior(console = console, simple = SimpleLogRecordProcessorBehavior()),
+                    processor = LogRecordProcessorBehavior(simple = SimpleLogRecordProcessorBehavior(console = console)),
                 ),
             ),
             config.toBehavior(),
@@ -157,7 +157,7 @@ internal class OpenTelemetryConfigurationMapperTest {
                     processor = SpanProcessorBehavior(http = http),
                 ),
                 loggerProvider = LoggerProviderBehavior(
-                    processor = LogRecordProcessorBehavior(http = http, simple = SimpleLogRecordProcessorBehavior()),
+                    processor = LogRecordProcessorBehavior(simple = SimpleLogRecordProcessorBehavior(http = http)),
                 ),
             ),
             config.toBehavior(),
