@@ -29,7 +29,8 @@ internal class LogRecordProcessorMapperTest {
         )
         assertEquals(
             LogRecordProcessorBehavior(
-                simple = SimpleLogRecordProcessorBehavior(console = ConsoleExporterBehavior()),
+                console = ConsoleExporterBehavior(),
+                simple = SimpleLogRecordProcessorBehavior(),
             ),
             processors.toBehavior(),
         )
@@ -42,13 +43,12 @@ internal class LogRecordProcessorMapperTest {
         )
         assertEquals(
             LogRecordProcessorBehavior(
-                simple = SimpleLogRecordProcessorBehavior(
-                    http = OtlpHttpExporterBehavior(
-                        endpoint = "http://localhost:4317",
-                        timeout = 10_000,
-                        headers = mapOf("key" to "value")
-                    ),
+                http = OtlpHttpExporterBehavior(
+                    endpoint = "http://localhost:4317",
+                    timeout = 10_000,
+                    headers = mapOf("key" to "value")
                 ),
+                simple = SimpleLogRecordProcessorBehavior(),
             ),
             processors.toBehavior(),
         )

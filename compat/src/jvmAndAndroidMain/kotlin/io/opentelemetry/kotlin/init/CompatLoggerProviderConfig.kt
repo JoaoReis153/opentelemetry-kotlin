@@ -69,7 +69,7 @@ internal class CompatLoggerProviderConfig(
     }
 
     internal fun applyResolvedProcessor(behavior: LogRecordProcessorBehavior?) {
-        if (exportConfigured || (behavior?.console == null && behavior?.simple?.console == null)) {
+        if (exportConfigured || behavior?.console == null) {
             return
         }
         exportConfigured = true
