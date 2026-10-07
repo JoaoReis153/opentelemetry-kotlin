@@ -7,7 +7,7 @@ import kotlin.test.assertNotEquals
 internal class SimpleLogRecordProcessorBehaviorTest {
 
     @Test
-    fun anyTwoInstancesAreEquivalent() {
+    fun anyTwoInstancesWithoutAnExporterAreEquivalent() {
         assertEquals(SimpleLogRecordProcessorBehavior(), SimpleLogRecordProcessorBehavior())
         assertEquals(
             SimpleLogRecordProcessorBehavior().hashCode(),
@@ -29,13 +29,16 @@ internal class SimpleLogRecordProcessorBehaviorTest {
     }
 
     @Test
-    fun mergesExportersFieldByFieldAcrossLayers() {
+    fun mergesExporterAcrossLayers() {
         val console = ConsoleExporterBehavior()
         val http = OtlpHttpExporterBehavior(endpoint = "https://example.com")
 
-        val merged = SimpleLogRecordProcessorBehavior(console = console)
-            .mergeWith(SimpleLogRecordProcessorBehavior(http = http))
+        val merged = SimpleLogRecordProcessorBehavior(LogRecordExporterBehavior(console = console))
+            .mergeWith(SimpleLogRecordProcessorBehavior(LogRecordExporterBehavior(http = http)))
 
-        assertEquals(SimpleLogRecordProcessorBehavior(console = console, http = http), merged)
+        assertEquals(
+            SimpleLogRecordProcessorBehavior(LogRecordExporterBehavior(console = console, http = http)),
+            merged,
+        )
     }
 }
