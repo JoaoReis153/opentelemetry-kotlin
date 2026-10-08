@@ -12,7 +12,7 @@ import io.opentelemetry.kotlin.config.dsl.AttributeLimitsConfigDslImpl
 import io.opentelemetry.kotlin.config.dsl.BehaviorSupplier
 import io.opentelemetry.kotlin.config.dsl.ResourceDetectionConfigDslImpl
 import io.opentelemetry.kotlin.error.GuardedSdkErrorHandler
-import io.opentelemetry.kotlin.error.NoopSdkErrorHandler
+import io.opentelemetry.kotlin.error.PlatformSdkErrorHandler
 import io.opentelemetry.kotlin.error.SdkErrorHandler
 import io.opentelemetry.kotlin.factory.IdGenerator
 import io.opentelemetry.kotlin.propagation.CompatPropagatorConfigImpl
@@ -27,7 +27,7 @@ internal class CompatOpenTelemetryConfig(
     clock: Clock,
 ) : OpenTelemetryConfigDsl, BehaviorSupplier<OpenTelemetryBehavior> {
 
-    @Volatile private var configuredErrorHandler: SdkErrorHandler = NoopSdkErrorHandler
+    @Volatile private var configuredErrorHandler: SdkErrorHandler = PlatformSdkErrorHandler
     internal val sdkErrorHandler = GuardedSdkErrorHandler { configuredErrorHandler.onError(it) }
 
     internal val tracerProviderConfig = CompatTracerProviderConfig(clock, sdkErrorHandler)

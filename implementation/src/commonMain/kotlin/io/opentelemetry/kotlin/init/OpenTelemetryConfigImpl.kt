@@ -8,7 +8,7 @@ import io.opentelemetry.kotlin.config.dsl.BehaviorSupplier
 import io.opentelemetry.kotlin.config.dsl.ResourceConfigDslImpl
 import io.opentelemetry.kotlin.config.dsl.ResourceDetectionConfigDslImpl
 import io.opentelemetry.kotlin.error.GuardedSdkErrorHandler
-import io.opentelemetry.kotlin.error.NoopSdkErrorHandler
+import io.opentelemetry.kotlin.error.PlatformSdkErrorHandler
 import io.opentelemetry.kotlin.error.SdkErrorHandler
 import io.opentelemetry.kotlin.factory.IdGenerator
 import io.opentelemetry.kotlin.propagation.TextMapPropagator
@@ -21,7 +21,7 @@ internal class OpenTelemetryConfigImpl(
     ResourceConfigDsl by globalResourceConfig,
     BehaviorSupplier<OpenTelemetryBehavior> {
 
-    @Volatile private var configuredErrorHandler: SdkErrorHandler = NoopSdkErrorHandler
+    @Volatile private var configuredErrorHandler: SdkErrorHandler = PlatformSdkErrorHandler
 
     /**
      * The handler is configured after the sub-configs below have been created, so they receive a
