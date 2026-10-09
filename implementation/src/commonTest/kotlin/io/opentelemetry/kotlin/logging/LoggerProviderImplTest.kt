@@ -9,7 +9,6 @@ import io.opentelemetry.kotlin.error.SdkError
 import io.opentelemetry.kotlin.error.SdkErrorHandler
 import io.opentelemetry.kotlin.export.OperationResultCode
 import io.opentelemetry.kotlin.factory.FakeContextFactory
-import io.opentelemetry.kotlin.factory.FakeSpanContextFactory
 import io.opentelemetry.kotlin.init.config.LoggingConfig
 import io.opentelemetry.kotlin.logging.export.FakeLogRecordProcessor
 import io.opentelemetry.kotlin.logging.export.LogRecordProcessor
@@ -35,7 +34,6 @@ internal class LoggerProviderImplTest {
         loggerConfigurator,
     )
     private val contextFactory = FakeContextFactory()
-    private val spanContextFactory = FakeSpanContextFactory()
     private val attributeLimits = AttributeLimitsBehavior()
     private val logLimits = AttributeLimitsBehavior(100, 100)
     private lateinit var impl: LoggerProviderImpl
@@ -46,7 +44,6 @@ internal class LoggerProviderImplTest {
             clock,
             loggingConfig,
             contextFactory,
-            spanContextFactory,
             attributeLimits,
             logLimits,
         )
@@ -70,7 +67,6 @@ internal class LoggerProviderImplTest {
             clock,
             config,
             contextFactory,
-            spanContextFactory,
             attributeLimits,
             logLimits,
         )
@@ -164,7 +160,6 @@ internal class LoggerProviderImplTest {
             clock,
             config,
             contextFactory,
-            spanContextFactory,
             attributeLimits,
             logLimits,
         )
@@ -194,7 +189,6 @@ internal class LoggerProviderImplTest {
             clock,
             config,
             contextFactory,
-            spanContextFactory,
             attributeLimits,
             logLimits,
         )
@@ -225,7 +219,6 @@ internal class LoggerProviderImplTest {
             clock,
             config,
             contextFactory,
-            spanContextFactory,
             attributeLimits,
             logLimits,
         )
@@ -277,7 +270,6 @@ internal class LoggerProviderImplTest {
         clock,
         LoggingConfig(processor, FakeResource(), errorHandler, loggerConfigurator),
         contextFactory,
-        spanContextFactory,
         attributeLimits,
         logLimits,
     )

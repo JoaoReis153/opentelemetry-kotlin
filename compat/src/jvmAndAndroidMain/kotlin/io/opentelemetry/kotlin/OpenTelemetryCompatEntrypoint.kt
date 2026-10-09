@@ -7,9 +7,6 @@ import io.opentelemetry.kotlin.error.reportError
 import io.opentelemetry.kotlin.factory.CompatContextFactory
 import io.opentelemetry.kotlin.factory.CompatResourceFactory
 import io.opentelemetry.kotlin.factory.CompatSpanFactory
-import io.opentelemetry.kotlin.factory.DefaultSpanContextFactory
-import io.opentelemetry.kotlin.factory.DefaultTraceFlagsFactory
-import io.opentelemetry.kotlin.factory.DefaultTraceStateFactory
 import io.opentelemetry.kotlin.init.CompatOpenTelemetryConfig
 import io.opentelemetry.kotlin.init.CompatSdkConfigFactory
 import io.opentelemetry.kotlin.init.OpenTelemetryConfigDsl
@@ -29,11 +26,8 @@ public fun createCompatOpenTelemetry(
     clock: Clock = ClockAdapter(io.opentelemetry.sdk.common.Clock.getDefault()),
     config: OpenTelemetryConfigDsl.() -> Unit = {}
 ): OpenTelemetry {
-    val traceFlags = DefaultTraceFlagsFactory
-    val traceState = DefaultTraceStateFactory
-    val spanContext = DefaultSpanContextFactory
     val contextFactory = CompatContextFactory()
-    val span = CompatSpanFactory(spanContext)
+    val span = CompatSpanFactory()
 
     val cfg = CompatOpenTelemetryConfig(clock).apply(config)
     if (cfg.contextConfigured) {
@@ -56,9 +50,6 @@ public fun createCompatOpenTelemetry(
         loggerProvider = configFactory.buildLoggerProvider(),
         meterProvider = configFactory.buildMeterProvider(),
         clock = clock,
-        spanContext = spanContext,
-        traceFlags = traceFlags,
-        traceState = traceState,
         context = contextFactory,
         span = span,
         idGenerator = configFactory.idGenerator,
