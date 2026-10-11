@@ -4,6 +4,7 @@ import io.opentelemetry.kotlin.behavior.AttributeLimitsBehavior
 import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
 import io.opentelemetry.kotlin.behavior.IdGeneratorBehavior
 import io.opentelemetry.kotlin.behavior.LogLimitsBehavior
+import io.opentelemetry.kotlin.behavior.LogRecordExporterBehavior
 import io.opentelemetry.kotlin.behavior.LogRecordProcessorBehavior
 import io.opentelemetry.kotlin.behavior.LoggerProviderBehavior
 import io.opentelemetry.kotlin.behavior.OpenTelemetryBehavior
@@ -108,7 +109,10 @@ internal class OpenTelemetryConfigurationMapperTest {
                     processor = SpanProcessorBehavior(console = console, simple = SimpleSpanProcessorBehavior()),
                 ),
                 loggerProvider = LoggerProviderBehavior(
-                    processor = LogRecordProcessorBehavior(console = console, simple = SimpleLogRecordProcessorBehavior()),
+                    processor = LogRecordProcessorBehavior(
+                        console = console,
+                        simple = SimpleLogRecordProcessorBehavior(exporter = LogRecordExporterBehavior(console = console)),
+                    ),
                 ),
             ),
             config.toBehavior(),

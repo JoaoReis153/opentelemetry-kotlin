@@ -1,6 +1,7 @@
 package io.opentelemetry.kotlin.config.yaml
 
 import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
+import io.opentelemetry.kotlin.behavior.LogRecordExporterBehavior
 import io.opentelemetry.kotlin.behavior.LogRecordProcessorBehavior
 import io.opentelemetry.kotlin.behavior.OtlpHttpLogsExporterBehavior
 import io.opentelemetry.kotlin.behavior.SimpleLogRecordProcessorBehavior
@@ -30,7 +31,9 @@ internal class LogRecordProcessorMapperTest {
         assertEquals(
             LogRecordProcessorBehavior(
                 console = ConsoleExporterBehavior(),
-                simple = SimpleLogRecordProcessorBehavior(),
+                simple = SimpleLogRecordProcessorBehavior(
+                    exporter = LogRecordExporterBehavior(console = ConsoleExporterBehavior())
+                ),
             ),
             processors.toBehavior(),
         )
