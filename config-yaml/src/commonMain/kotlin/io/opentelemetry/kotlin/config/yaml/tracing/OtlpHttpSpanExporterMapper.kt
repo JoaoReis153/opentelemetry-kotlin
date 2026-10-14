@@ -7,6 +7,9 @@ import io.opentelemetry.kotlin.config.schema.model.OtlpHttpExporter
 import kotlin.collections.orEmpty
 import kotlin.collections.plus
 
+/**
+ * Maps `tracer_provider.processors.exporter.otlp_http` onto its behavior.
+ */
 @ExperimentalApi
 fun OtlpHttpExporter.toBehavior(): OtlpHttpSpanExporterBehavior {
     // if there are duplicate keys, the last one wins.
