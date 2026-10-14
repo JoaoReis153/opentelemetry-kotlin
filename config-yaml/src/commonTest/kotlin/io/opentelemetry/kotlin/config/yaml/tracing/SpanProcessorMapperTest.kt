@@ -52,7 +52,11 @@ internal class SpanProcessorMapperTest {
         assertEquals(
             SpanProcessorBehavior(
                 http = http,
-                simple = SimpleSpanProcessorBehavior(exporter = SpanExporterBehavior(http = http)),
+                simple = SimpleSpanProcessorBehavior(
+                    exporter = SpanExporterBehavior(
+                        http = http
+                    )
+                ),
             ),
             processors.toBehavior(),
         )

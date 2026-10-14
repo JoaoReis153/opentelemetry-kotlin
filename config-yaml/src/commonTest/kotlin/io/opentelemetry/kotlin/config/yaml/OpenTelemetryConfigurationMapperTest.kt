@@ -118,7 +118,11 @@ internal class OpenTelemetryConfigurationMapperTest {
                 tracerProvider = TracerProviderBehavior(
                     processor = SpanProcessorBehavior(
                         console = console,
-                        simple = SimpleSpanProcessorBehavior(exporter = SpanExporterBehavior(console = console)),
+                        simple = SimpleSpanProcessorBehavior(
+                            exporter = SpanExporterBehavior(
+                                console = console
+                            )
+                        ),
                     ),
                 ),
                 loggerProvider = LoggerProviderBehavior(
@@ -179,7 +183,11 @@ internal class OpenTelemetryConfigurationMapperTest {
                 tracerProvider = TracerProviderBehavior(
                     processor = SpanProcessorBehavior(
                         http = spanExporter,
-                        simple = SimpleSpanProcessorBehavior(exporter = SpanExporterBehavior(http = spanExporter)),
+                        simple = SimpleSpanProcessorBehavior(
+                            exporter = SpanExporterBehavior(
+                                http = spanExporter
+                            )
+                        ),
                     ),
                 ),
                 loggerProvider = LoggerProviderBehavior(
