@@ -45,4 +45,27 @@ internal class SpanExporterMapperTest {
             exporter.toBehavior(),
         )
     }
+
+    @Test
+    fun mapsConsoleAndOtlpHttpTogether() {
+        val exporter = SpanExporter(
+            console = ConsoleExporter(),
+            otlpHttp = OtlpHttpExporter(
+                endpoint = "http://localhost:4317",
+                timeout = 10_000,
+                headersList = "key=value",
+            )
+        )
+        assertEquals(
+            SpanExporterBehavior(
+                console = ConsoleExporterBehavior(),
+                http = OtlpHttpSpanExporterBehavior(
+                    endpoint = "http://localhost:4317",
+                    timeout = 10_000,
+                    headers = mapOf("key" to "value"),
+                )
+            ),
+            exporter.toBehavior(),
+        )
+    }
 }
