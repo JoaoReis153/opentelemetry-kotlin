@@ -13,34 +13,26 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 internal class SimpleSpanProcessorMapperTest {
-
     @Test
-    fun mapsConsoleExporter() {
-        val processor = SimpleSpanProcessor(exporter = SpanExporter(console = ConsoleExporter()))
-        assertEquals(
-            SimpleSpanProcessorBehavior(exporter = SpanExporterBehavior(console = ConsoleExporterBehavior())),
-            processor.toBehavior(),
-        )
-    }
-
-    @Test
-    fun mapsOtlpHttpExporter() {
+    fun mapsSimpleSpanProcessor() {
         val processor = SimpleSpanProcessor(
             exporter = SpanExporter(
+                console = ConsoleExporter(),
                 otlpHttp = OtlpHttpExporter(
                     endpoint = "http://localhost:4317",
                     timeout = 10_000,
-                    headersList = "key=value",
+                    headersList = "key=value"
                 )
             )
         )
         assertEquals(
             SimpleSpanProcessorBehavior(
                 exporter = SpanExporterBehavior(
+                    console = ConsoleExporterBehavior(),
                     http = OtlpHttpSpanExporterBehavior(
                         endpoint = "http://localhost:4317",
                         timeout = 10_000,
-                        headers = mapOf("key" to "value"),
+                        headers = mapOf("key" to "value")
                     )
                 )
             ),
@@ -49,7 +41,8 @@ internal class SimpleSpanProcessorMapperTest {
     }
 
     @Test
-    fun leavesProcessorUnsetWhenNoExporterIsKnown() {
-        assertNull(SimpleSpanProcessor(exporter = SpanExporter()).toBehavior())
+    fun missingExporterLeavesBehaviorUnset() {
+        val processor = SimpleSpanProcessor(exporter = SpanExporter())
+        assertNull(processor.toBehavior())
     }
 }

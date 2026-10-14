@@ -18,36 +18,7 @@ internal class SpanExporterMapperTest {
     }
 
     @Test
-    fun mapsConsoleExporter() {
-        assertEquals(
-            SpanExporterBehavior(console = ConsoleExporterBehavior()),
-            SpanExporter(console = ConsoleExporter()).toBehavior(),
-        )
-    }
-
-    @Test
-    fun mapsOtlpHttpExporter() {
-        val exporter = SpanExporter(
-            otlpHttp = OtlpHttpExporter(
-                endpoint = "http://localhost:4317",
-                timeout = 10_000,
-                headersList = "key=value",
-            )
-        )
-        assertEquals(
-            SpanExporterBehavior(
-                http = OtlpHttpSpanExporterBehavior(
-                    endpoint = "http://localhost:4317",
-                    timeout = 10_000,
-                    headers = mapOf("key" to "value"),
-                )
-            ),
-            exporter.toBehavior(),
-        )
-    }
-
-    @Test
-    fun mapsConsoleAndOtlpHttpTogether() {
+    fun mapsSpanExporters() {
         val exporter = SpanExporter(
             console = ConsoleExporter(),
             otlpHttp = OtlpHttpExporter(
