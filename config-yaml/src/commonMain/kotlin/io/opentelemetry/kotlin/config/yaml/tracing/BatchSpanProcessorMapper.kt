@@ -15,8 +15,10 @@ fun BatchSpanProcessor.toBehavior(): BatchSpanProcessorBehavior {
         ?: BatchSpanProcessorBehavior.DEFAULT_EXPORT_TIMEOUT
     val maxQueueSize = maxQueueSize?.takeIf { value -> value in 1..Int.MAX_VALUE.toLong() }?.toInt()
         ?: BatchSpanProcessorBehavior.DEFAULT_MAX_QUEUE_SIZE
-    val maxExportBatchSize = maxExportBatchSize?.takeIf { value -> value in 1..Int.MAX_VALUE.toLong() }?.toInt()
+    val requestedBatchSize = maxExportBatchSize?.takeIf { value -> value in 1..Int.MAX_VALUE.toLong() }?.toInt()
         ?: BatchSpanProcessorBehavior.DEFAULT_MAX_EXPORT_BATCH_SIZE
+
+    val maxExportBatchSize = minOf(requestedBatchSize, maxQueueSize)
     return BatchSpanProcessorBehavior(
         scheduleDelay = scheduleDelay,
         exportTimeout = exportTimeout,

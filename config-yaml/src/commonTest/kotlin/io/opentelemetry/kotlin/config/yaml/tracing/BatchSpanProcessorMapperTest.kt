@@ -27,16 +27,16 @@ internal class BatchSpanProcessorMapperTest {
         val behavior = BatchSpanProcessor(
             scheduleDelay = 100,
             exportTimeout = 200,
-            maxQueueSize = 300,
-            maxExportBatchSize = 400,
+            maxQueueSize = 400,
+            maxExportBatchSize = 300,
             exporter = SpanExporter()
         ).toBehavior()
         assertEquals(
             BatchSpanProcessorBehavior(
                 scheduleDelay = 100,
                 exportTimeout = 200,
-                maxQueueSize = 300,
-                maxExportBatchSize = 400
+                maxQueueSize = 400,
+                maxExportBatchSize = 300
             ),
             behavior
         )
@@ -60,5 +60,22 @@ internal class BatchSpanProcessorMapperTest {
             ),
             behavior
         )
+    }
+
+    @Test
+    fun batchSizeIsCappedAtQueueSize() {
+        val behavior = BatchSpanProcessor(
+            maxQueueSize = 100,
+            maxExportBatchSize = 400,
+            exporter = SpanExporter()
+        ).toBehavior()
+        assertEquals(100, behavior.maxQueueSize)
+        assertEquals(100, behavior.maxExportBatchSize)
+    }
+
+    @Test
+    fun defaultBatchSizeIsCappedAtQueueSize() {
+        val behavior = BatchSpanProcessor(maxQueueSize = 100, exporter = SpanExporter()).toBehavior()
+        assertEquals(100, behavior.maxExportBatchSize)
     }
 }
