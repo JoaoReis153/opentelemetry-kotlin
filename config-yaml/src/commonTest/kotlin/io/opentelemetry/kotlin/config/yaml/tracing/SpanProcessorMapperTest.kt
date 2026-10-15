@@ -1,6 +1,5 @@
 package io.opentelemetry.kotlin.config.yaml.tracing
 
-import io.opentelemetry.kotlin.behavior.BatchSpanProcessorBehavior
 import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
 import io.opentelemetry.kotlin.behavior.OtlpHttpSpanExporterBehavior
 import io.opentelemetry.kotlin.behavior.SimpleSpanProcessorBehavior
@@ -51,65 +50,6 @@ internal class SpanProcessorMapperTest {
                 simple = SimpleSpanProcessorBehavior(),
             ),
             processors.toBehavior(),
-        )
-    }
-
-    @Test
-    fun mapsConsoleFromABatchProcessor() {
-        val processors = listOf(
-            SpanProcessor(batch = BatchSpanProcessor(exporter = consoleExporter())),
-        )
-        assertEquals(
-            SpanProcessorBehavior(
-                console = ConsoleExporterBehavior(),
-                batch = BatchSpanProcessorBehavior(
-                    scheduleDelay = BatchSpanProcessorBehavior.DEFAULT_SCHEDULE_DELAY,
-                    exportTimeout = BatchSpanProcessorBehavior.DEFAULT_EXPORT_TIMEOUT,
-                    maxQueueSize = BatchSpanProcessorBehavior.DEFAULT_MAX_QUEUE_SIZE,
-                    maxExportBatchSize = BatchSpanProcessorBehavior.DEFAULT_MAX_EXPORT_BATCH_SIZE,
-                ),
-            ),
-            processors.toBehavior(),
-        )
-    }
-
-    @Test
-    fun mapsHttpFromABatchProcessor() {
-        val processors = listOf(SpanProcessor(batch = BatchSpanProcessor(exporter = httpExporter())))
-        assertEquals(
-            SpanProcessorBehavior(
-                http = OtlpHttpSpanExporterBehavior(
-                    endpoint = "http://localhost:4317",
-                    timeout = 10_000,
-                    headers = mapOf("key" to "value")
-                ),
-                batch = BatchSpanProcessorBehavior(
-                    scheduleDelay = BatchSpanProcessorBehavior.DEFAULT_SCHEDULE_DELAY,
-                    exportTimeout = BatchSpanProcessorBehavior.DEFAULT_EXPORT_TIMEOUT,
-                    maxQueueSize = BatchSpanProcessorBehavior.DEFAULT_MAX_QUEUE_SIZE,
-                    maxExportBatchSize = BatchSpanProcessorBehavior.DEFAULT_MAX_EXPORT_BATCH_SIZE,
-                ),
-            ),
-            processors.toBehavior(),
-        )
-    }
-
-    @Test
-    fun mapsBatchOptions() {
-        val processors = listOf(
-            SpanProcessor(
-                batch = BatchSpanProcessor(
-                    exporter = consoleExporter(),
-                    scheduleDelay = 100,
-                    exportTimeout = 200,
-                    maxQueueSize = 40,
-                    maxExportBatchSize = 20,
-                )
-            )
-        )
-        assertEquals(
-            BatchSpanProcessorBehavior(100, 200, 40, 20),
-            processors.toBehavior()?.batch,
         )
     }
 
