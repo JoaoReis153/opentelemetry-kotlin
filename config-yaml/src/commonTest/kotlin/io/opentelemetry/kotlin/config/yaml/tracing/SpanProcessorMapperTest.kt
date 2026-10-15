@@ -60,7 +60,15 @@ internal class SpanProcessorMapperTest {
             SpanProcessor(batch = BatchSpanProcessor(exporter = consoleExporter())),
         )
         assertEquals(
-            SpanProcessorBehavior(console = ConsoleExporterBehavior(), batch = BatchSpanProcessorBehavior()),
+            SpanProcessorBehavior(
+                console = ConsoleExporterBehavior(),
+                batch = BatchSpanProcessorBehavior(
+                    scheduleDelay = BatchSpanProcessorBehavior.DEFAULT_SCHEDULE_DELAY,
+                    exportTimeout = BatchSpanProcessorBehavior.DEFAULT_EXPORT_TIMEOUT,
+                    maxQueueSize = BatchSpanProcessorBehavior.DEFAULT_MAX_QUEUE_SIZE,
+                    maxExportBatchSize = BatchSpanProcessorBehavior.DEFAULT_MAX_EXPORT_BATCH_SIZE,
+                ),
+            ),
             processors.toBehavior(),
         )
     }
@@ -75,7 +83,12 @@ internal class SpanProcessorMapperTest {
                     timeout = 10_000,
                     headers = mapOf("key" to "value")
                 ),
-                batch = BatchSpanProcessorBehavior(),
+                batch = BatchSpanProcessorBehavior(
+                    scheduleDelay = BatchSpanProcessorBehavior.DEFAULT_SCHEDULE_DELAY,
+                    exportTimeout = BatchSpanProcessorBehavior.DEFAULT_EXPORT_TIMEOUT,
+                    maxQueueSize = BatchSpanProcessorBehavior.DEFAULT_MAX_QUEUE_SIZE,
+                    maxExportBatchSize = BatchSpanProcessorBehavior.DEFAULT_MAX_EXPORT_BATCH_SIZE,
+                ),
             ),
             processors.toBehavior(),
         )
