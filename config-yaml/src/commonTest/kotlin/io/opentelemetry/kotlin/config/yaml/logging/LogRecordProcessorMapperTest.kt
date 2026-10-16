@@ -1,5 +1,6 @@
 package io.opentelemetry.kotlin.config.yaml.logging
 
+import io.opentelemetry.kotlin.behavior.BatchLogRecordProcessorBehavior
 import io.opentelemetry.kotlin.behavior.ConsoleExporterBehavior
 import io.opentelemetry.kotlin.behavior.LogRecordExporterBehavior
 import io.opentelemetry.kotlin.behavior.LogRecordProcessorBehavior
@@ -51,7 +52,15 @@ internal class LogRecordProcessorMapperTest {
                     timeout = 10_000,
                     headers = mapOf("key" to "value")
                 ),
-                simple = SimpleLogRecordProcessorBehavior(),
+                simple = SimpleLogRecordProcessorBehavior(
+                    exporter = LogRecordExporterBehavior(
+                        http = OtlpHttpLogsExporterBehavior(
+                            endpoint = "http://localhost:4317",
+                            timeout = 10_000,
+                            headers = mapOf("key" to "value")
+                        )
+                    )
+                ),
             ),
             processors.toBehavior(),
         )
@@ -63,7 +72,15 @@ internal class LogRecordProcessorMapperTest {
             LogRecordProcessor(batch = BatchLogRecordProcessor(exporter = consoleExporter())),
         )
         assertEquals(
-            LogRecordProcessorBehavior(console = ConsoleExporterBehavior()),
+            LogRecordProcessorBehavior(
+                console = ConsoleExporterBehavior(),
+                batch = BatchLogRecordProcessorBehavior(
+                    scheduleDelay = BatchLogRecordProcessorBehavior.DEFAULT_SCHEDULE_DELAY,
+                    exportTimeout = BatchLogRecordProcessorBehavior.DEFAULT_EXPORT_TIMEOUT,
+                    maxQueueSize = BatchLogRecordProcessorBehavior.DEFAULT_MAX_QUEUE_SIZE,
+                    maxExportBatchSize = BatchLogRecordProcessorBehavior.DEFAULT_MAX_EXPORT_BATCH_SIZE
+                )
+            ),
             processors.toBehavior(),
         )
     }
@@ -77,6 +94,45 @@ internal class LogRecordProcessorMapperTest {
                     endpoint = "http://localhost:4317",
                     timeout = 10_000,
                     headers = mapOf("key" to "value")
+                ),
+                batch = BatchLogRecordProcessorBehavior(
+                    scheduleDelay = BatchLogRecordProcessorBehavior.DEFAULT_SCHEDULE_DELAY,
+                    exportTimeout = BatchLogRecordProcessorBehavior.DEFAULT_EXPORT_TIMEOUT,
+                    maxQueueSize = BatchLogRecordProcessorBehavior.DEFAULT_MAX_QUEUE_SIZE,
+                    maxExportBatchSize = BatchLogRecordProcessorBehavior.DEFAULT_MAX_EXPORT_BATCH_SIZE
+                )
+            ),
+            processors.toBehavior(),
+        )
+    }
+
+    @Test
+    fun mapsSimpleProcessor() {
+        val processors = listOf(LogRecordProcessor(simple = SimpleLogRecordProcessor(exporter = consoleExporter())))
+        assertEquals(
+            LogRecordProcessorBehavior(
+                console = ConsoleExporterBehavior(),
+                simple = SimpleLogRecordProcessorBehavior(
+                    exporter = LogRecordExporterBehavior(
+                        console = ConsoleExporterBehavior()
+                    )
+                )
+            ),
+            processors.toBehavior(),
+        )
+    }
+
+    @Test
+    fun mapsBatchProcessor() {
+        val processors = listOf(LogRecordProcessor(batch = BatchLogRecordProcessor(exporter = consoleExporter())))
+        assertEquals(
+            LogRecordProcessorBehavior(
+                console = ConsoleExporterBehavior(),
+                batch = BatchLogRecordProcessorBehavior(
+                    scheduleDelay = BatchLogRecordProcessorBehavior.DEFAULT_SCHEDULE_DELAY,
+                    exportTimeout = BatchLogRecordProcessorBehavior.DEFAULT_EXPORT_TIMEOUT,
+                    maxQueueSize = BatchLogRecordProcessorBehavior.DEFAULT_MAX_QUEUE_SIZE,
+                    maxExportBatchSize = BatchLogRecordProcessorBehavior.DEFAULT_MAX_EXPORT_BATCH_SIZE,
                 )
             ),
             processors.toBehavior(),
@@ -105,6 +161,12 @@ internal class LogRecordProcessorMapperTest {
                     endpoint = "http://localhost:4317",
                     timeout = 10_000,
                     headers = mapOf("key" to "value")
+                ),
+                batch = BatchLogRecordProcessorBehavior(
+                    scheduleDelay = BatchLogRecordProcessorBehavior.DEFAULT_SCHEDULE_DELAY,
+                    exportTimeout = BatchLogRecordProcessorBehavior.DEFAULT_EXPORT_TIMEOUT,
+                    maxQueueSize = BatchLogRecordProcessorBehavior.DEFAULT_MAX_QUEUE_SIZE,
+                    maxExportBatchSize = BatchLogRecordProcessorBehavior.DEFAULT_MAX_EXPORT_BATCH_SIZE,
                 )
             ),
             processors.toBehavior(),

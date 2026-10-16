@@ -9,9 +9,9 @@ data class BatchSpanProcessorBehavior(
     val scheduleDelay: Long? = null,
     /** Maximum export duration, in milliseconds. Zero means no limit. Must be non-negative. */
     val exportTimeout: Long? = null,
-    /** Maximum number of queued log records. Must be positive. */
+    /** Maximum number of queued spans. Must be positive. */
     val maxQueueSize: Int? = null,
-    /** Maximum records per export. Must be positive and no greater than [maxQueueSize]. */
+    /** Maximum spans per export. Must be positive and no greater than [maxQueueSize]. */
     val maxExportBatchSize: Int? = null,
     /** Span exporter. */
     val exporter: SpanExporterBehavior? = null
@@ -23,4 +23,11 @@ data class BatchSpanProcessorBehavior(
         maxExportBatchSize = higher.maxExportBatchSize ?: maxExportBatchSize,
         exporter = mergeNode(exporter, higher.exporter)
     )
+
+    companion object {
+        const val DEFAULT_SCHEDULE_DELAY = 5_000L
+        const val DEFAULT_EXPORT_TIMEOUT = 30_000L
+        const val DEFAULT_MAX_QUEUE_SIZE = 2_048
+        const val DEFAULT_MAX_EXPORT_BATCH_SIZE = 512
+    }
 }

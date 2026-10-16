@@ -8,6 +8,9 @@ import kotlin.collections.ifEmpty
 import kotlin.collections.orEmpty
 import kotlin.collections.plus
 
+/**
+ * Maps `logger_provider.processors.exporter.otlpHttpExporter` onto its behavior.
+ */
 @ExperimentalApi
 fun OtlpHttpExporter.toBehavior(): OtlpHttpLogsExporterBehavior {
     // if there are duplicate keys, the last one wins.
