@@ -24,5 +24,6 @@ fun BatchSpanProcessor.toBehavior(): BatchSpanProcessorBehavior {
         exportTimeout = exportTimeout,
         maxQueueSize = maxQueueSize,
         maxExportBatchSize = maxExportBatchSize,
+        exporter = exporter.toBehavior(),
     )
 }
