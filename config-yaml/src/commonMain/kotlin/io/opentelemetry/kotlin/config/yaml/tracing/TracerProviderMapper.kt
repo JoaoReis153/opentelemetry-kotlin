@@ -9,17 +9,14 @@ import io.opentelemetry.kotlin.config.schema.model.TracerProvider
  */
 @ExperimentalApi
 fun TracerProvider.toBehavior(): TracerProviderBehavior? {
-    val spanLimits = limits?.toBehavior()
-    val processor = processors.toBehavior()
-    val sampler = sampler?.toBehavior()
-    val idGenerator = idGenerator?.toBehavior()
-    if (spanLimits == null && processor == null && sampler == null && idGenerator == null) {
+    val behavior = TracerProviderBehavior(
+        spanLimits = limits?.toBehavior(),
+        processor = processors.toBehavior(),
+        sampler = sampler?.toBehavior(),
+        idGenerator = idGenerator?.toBehavior(),
+    )
+    if (behavior == TracerProviderBehavior()) {
         return null
     }
-    return TracerProviderBehavior(
-        spanLimits = spanLimits,
-        processor = processor,
-        sampler = sampler,
-        idGenerator = idGenerator,
-    )
+    return behavior
 }
