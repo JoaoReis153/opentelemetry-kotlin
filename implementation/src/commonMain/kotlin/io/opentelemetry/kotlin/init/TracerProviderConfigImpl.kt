@@ -89,13 +89,15 @@ internal class TracerProviderConfigImpl(
             spanLimits = spanLimits.toBehavior()
         )
 
-    private fun processorFromBehavior(processorBehavior: SpanProcessorBehavior?): SpanProcessor? {
-        if (processorBehavior?.console == null) {
+    private fun processorFromBehavior(behavior: SpanProcessorBehavior?): SpanProcessor? {
+        val simple = behavior?.simple
+        val batch = behavior?.batch
+        val console = behavior?.console ?: batch?.exporter?.console ?: simple?.exporter?.console
+        if (console == null) {
             return null
         }
         return TraceExportConfigDslImpl(clock, sdkErrorHandler).run {
             val exporter = stdoutSpanExporter()
-            val batch = processorBehavior.batch
             if (batch == null) {
                 simpleSpanProcessor(exporter)
             } else {

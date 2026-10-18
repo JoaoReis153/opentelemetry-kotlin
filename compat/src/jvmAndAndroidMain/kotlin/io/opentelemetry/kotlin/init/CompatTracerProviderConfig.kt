@@ -101,12 +101,14 @@ internal class CompatTracerProviderConfig(
         }
 
     internal fun applyResolvedProcessor(behavior: SpanProcessorBehavior?) {
-        if (exportConfigured || behavior?.console == null) {
+        val simple = behavior?.simple
+        val batch = behavior?.batch
+        val console = behavior?.console ?: batch?.exporter?.console ?: simple?.exporter?.console
+        if (exportConfigured || console == null) {
             return
         }
         exportConfigured = true
         val exporter = LoggingSpanExporter.create()
-        val batch = behavior.batch
         if (batch == null) {
             builder.addSpanProcessor(OtelJavaSimpleSpanProcessor.create(exporter))
         } else {
